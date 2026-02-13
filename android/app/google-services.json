@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "454706808445",
+    "project_id": "psychologistapp-ee783",
+    "storage_bucket": "psychologistapp-ee783.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454706808445:android:90dd3a9fa2185081435314",
+        "android_client_info": {
+          "package_name": "com.example.psycho_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdZGi1_NMHbgWkjnUVWmauDIMwNK-py1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
