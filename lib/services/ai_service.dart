@@ -1,9 +1,16 @@
 // lib/services/ai_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
-class AIService {
-  final String apiKey = 'AIzaSyDQ9gGMZQur_A55iwc5Zfd7m5oMInKgDy4';
+class AIService extends ChangeNotifier {
+  // Ваш новый ключ
+  final String apiKey = 'AIzaSyDtpqZA4Cx49ipPw6AMVDVtUoFd9FVoQBU';
+
+  // Для отслеживания лимитов
+  int _requestCount = 0;
+  DateTime _lastReset = DateTime.now();
+  bool _useLocalOnly = false;
 
   final String systemPrompt = '''
 Ты - профессиональный психолог с большим опытом работы. Твои качества:
@@ -20,19 +27,42 @@ class AIService {
 ''';
 
   Future<String> sendMessage(String message) async {
+    // Если включен локальный режим - отвечаем локально
+    if (_useLocalOnly) {
+      return _getLocalResponse(message);
+    }
+
+    // Проверяем лимиты
+    if (!_checkRateLimit()) {
+      print('⚠️ Local mode activated due to rate limits');
+      _useLocalOnly = true;
+      return _getLocalResponse(message) + '\n\n(Автономный режим из-за лимитов API)';
+    }
+
     try {
-      // 🔥 ЭТОТ URL ДОЛЖЕН БЫТЬ В ТВОЁМ ФАЙЛЕ
+      print('📤 Отправка запроса к Gemini API (v1beta)...');
+      print('Сообщение: $message');
+
+
       final response = await http.post(
-        Uri.parse('https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-001:generateContent?key=$apiKey'),
+        Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'contents': [{'parts': [{'text': '$systemPrompt\n\nПользователь: $message'}]}],
+          'contents': [
+            {
+              'parts': [
+                {'text': '$systemPrompt\n\nПользователь: $message'}
+              ]
+            }
+          ],
           'generationConfig': {
             'temperature': 0.8,
             'maxOutputTokens': 1024,
           }
         }),
       );
+
+      print('📥 Статус ответа: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -41,13 +71,101 @@ class AIService {
           return data['candidates'][0]['content']['parts'][0]['text'].toString().trim();
         }
         return 'Не удалось сформировать ответ.';
-      } else {
-        print('API Error ${response.statusCode}: ${response.body}');
+      }
+      else if (response.statusCode == 429) {
+        print('⚠️ API quota exceeded, switching to local mode');
+        _useLocalOnly = true;
+        return _getLocalResponse(message) + '\n\n(Автономный режим из-за лимитов API)';
+      }
+      else {
+        print('❌ API Error ${response.statusCode}: ${response.body}');
+
+        // Если 404, попробуем получить список доступных моделей
+        if (response.statusCode == 404) {
+          await _checkAvailableModels();
+        }
+
         return 'Ошибка сервера. Попробуйте позже.';
       }
     } catch (e) {
-      print('Exception: $e');
-      return 'Ошибка подключения.';
+      print('❌ Exception: $e');
+      return 'Ошибка подключения. Проверьте интернет.';
     }
+  }
+
+  // Метод для проверки доступных моделей
+  Future<void> _checkAvailableModels() async {
+    try {
+      print('🔍 Запрос списка доступных моделей...');
+      final listResponse = await http.get(
+        Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$apiKey'),
+      );
+
+      if (listResponse.statusCode == 200) {
+        print('📋 Доступные модели: ${listResponse.body}');
+
+        // Парсим и выводим только названия моделей для удобства
+        final data = jsonDecode(listResponse.body);
+        if (data['models'] != null) {
+          print('✨ Список моделей:');
+          for (var model in data['models']) {
+            print('   - ${model['name']} (поддерживает: ${model['supportedGenerationMethods']})');
+          }
+        }
+      } else {
+        print('❌ Ошибка при получении списка моделей: ${listResponse.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Ошибка при запросе списка моделей: $e');
+    }
+  }
+
+  // Проверка rate limit
+  bool _checkRateLimit() {
+    final now = DateTime.now();
+
+    // Сбрасываем счетчик каждые 10 секунд
+    if (now.difference(_lastReset) > const Duration(seconds: 10)) {
+      _requestCount = 0;
+      _lastReset = now;
+    }
+
+    // Максимум 5 запросов за 10 секунд
+    if (_requestCount >= 5) {
+      return false;
+    }
+
+    _requestCount++;
+    return true;
+  }
+
+  // Локальные ответы на случай лимитов
+  String _getLocalResponse(String message) {
+    final lowerMsg = message.toLowerCase();
+
+    if (lowerMsg.contains('привет') || lowerMsg.contains('здравствуй')) {
+      return 'Здравствуйте! Рада вас слышать. Расскажите, что привело вас сегодня?';
+    }
+    if (lowerMsg.contains('тревог') || lowerMsg.contains('страх')) {
+      return 'Тревога - это естественная реакция. Давайте попробуем подышать вместе: глубокий вдох на 4 счета, задержка на 4, медленный выдох на 6.';
+    }
+    if (lowerMsg.contains('груст') || lowerMsg.contains('депресс')) {
+      return 'Мне жаль, что вы это чувствуете. Вы не одиноки. Помните, что это временное состояние. Хотите поговорить об этом?';
+    }
+    if (lowerMsg.contains('спасиб')) {
+      return 'Пожалуйста! Я всегда рядом, если нужна поддержка.';
+    }
+    if (lowerMsg.contains('пока') || lowerMsg.contains('до свидания')) {
+      return 'До свидания! Берегите себя. Возвращайтесь, когда захотите поговорить.';
+    }
+
+    return 'Я вас внимательно слушаю. Расскажите подробнее, что вас беспокоит?';
+  }
+
+  // Метод для сброса локального режима (можно вызывать раз в день)
+  void resetLocalMode() {
+    _useLocalOnly = false;
+    _requestCount = 0;
+    _lastReset = DateTime.now();
   }
 }

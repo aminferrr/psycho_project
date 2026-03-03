@@ -25,11 +25,14 @@ class AuthService with ChangeNotifier {
       await _firestore.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'email': email,
+        'displayName': name,
         'name': name,
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': FieldValue.serverTimestamp(),
         'subscription': 'free',
         'settings': {},
+        'role': 0,
+        'isApproved': false,
       });
 
       notifyListeners(); // ← ВАЖНО: обновляем UI

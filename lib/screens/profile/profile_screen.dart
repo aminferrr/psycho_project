@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
+import '../helpline_screen.dart';
+import '../auth/volunteer_registration_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -14,11 +16,11 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('Профиль'),
         backgroundColor: Colors.lightBlue[100],
       ),
-      body: Padding(
+      body: SingleChildScrollView(  // ← Оборачиваем в SingleChildScrollView
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-
+            // Карточка пользователя
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -54,8 +56,20 @@ class ProfileScreen extends StatelessWidget {
             Card(
               child: Column(
                 children: [
+                  _buildSettingsItem(Icons.volunteer_activism, 'Стать волонтёром', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const VolunteerRegistrationScreen()),
+                    );
+                  }),
                   _buildSettingsItem(Icons.notifications, 'Уведомления', () {}),
                   _buildSettingsItem(Icons.privacy_tip, 'Конфиденциальность', () {}),
+                  _buildSettingsItem(Icons.phone_in_talk, 'Телефон доверия', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HelplineScreen()),
+                    );
+                  }),
                   _buildSettingsItem(Icons.help, 'Помощь', () {}),
                   _buildSettingsItem(Icons.info, 'О приложении', () {}),
                 ],
@@ -77,6 +91,8 @@ class ProfileScreen extends StatelessWidget {
                 child: const Text('Выйти из аккаунта'),
               ),
             ),
+            // Добавляем отступ снизу для удобства прокрутки
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -85,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildSettingsItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon),
+      leading: Icon(icon, color: Colors.lightBlue),
       title: Text(title),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,

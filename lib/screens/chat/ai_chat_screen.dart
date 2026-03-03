@@ -12,6 +12,9 @@ class AIChatScreen extends StatefulWidget {
   State<AIChatScreen> createState() => _AIChatScreenState();
 }
 
+const _wallpapers = ['assets/wallpapers/wall1.jpg', 'assets/wallpapers/wall2.jpg', 'assets/wallpapers/wall3.jpg'];
+String _wallpaperForId(String id) => _wallpapers[id.hashCode.abs() % _wallpapers.length];
+
 class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMixin {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
@@ -127,29 +130,40 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final wallpaper = _sessionId != null ? _wallpaperForId(_sessionId!) : _wallpapers[0];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Чат с психологом'),
         backgroundColor: Colors.lightBlue[100],
         elevation: 0,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(12),
-              itemCount: _messages.length + (_isTyping ? 1 : 0),
-              itemBuilder: (context, i) {
-                if (i == _messages.length && _isTyping) {
-                  return _buildTypingIndicator();
-                }
-                final msg = _messages[i];
-                return _buildMessageBubble(msg);
-              },
-            ),
+          Positioned.fill(
+            child: Image.asset(wallpaper, fit: BoxFit.cover),
           ),
-          _buildInputField(),
+          Positioned.fill(
+            child: Container(color: Colors.white.withOpacity(0.92)),
+          ),
+          Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(12),
+                  itemCount: _messages.length + (_isTyping ? 1 : 0),
+                  itemBuilder: (context, i) {
+                    if (i == _messages.length && _isTyping) {
+                      return _buildTypingIndicator();
+                    }
+                    final msg = _messages[i];
+                    return _buildMessageBubble(msg);
+                  },
+                ),
+              ),
+              _buildInputField(),
+            ],
+          ),
         ],
       ),
     );

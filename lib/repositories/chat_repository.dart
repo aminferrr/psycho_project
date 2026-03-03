@@ -22,4 +22,28 @@ class ChatRepository {
     return _firestoreService.getChatSession(userId, sessionId);
   }
 
+  // --- Чаты с волонтёрами ---
+  Stream<List<VolunteerChatSession>> getUserVolunteerChats(String userId) {
+    return _firestoreService.getUserVolunteerChats(userId);
+  }
+
+  Stream<List<VolunteerChatSession>> getVolunteerChats(String volunteerUserId) {
+    return _firestoreService.getVolunteerChats(volunteerUserId);
+  }
+
+  Future<String> createOrGetVolunteerChat(String userId, String volunteerUserId, String volunteerName, {String? userName}) async {
+    return _firestoreService.createOrGetVolunteerChat(userId, volunteerUserId, volunteerName, userName: userName);
+  }
+
+  Stream<VolunteerChatSession?> getVolunteerChatSession(String chatId) {
+    return _firestoreService.getVolunteerChatSession(chatId);
+  }
+
+  Future<void> addVolunteerChatMessage(String chatId, ChatMessage message) async {
+    await _firestoreService.addVolunteerChatMessage(chatId, message);
+  }
+
+  Future<void> acceptVolunteerChatRequest(String chatId) async {
+    await _firestoreService.acceptVolunteerChatRequest(chatId);
+  }
 }

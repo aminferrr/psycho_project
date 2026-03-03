@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../diary/emotion_diary_screen.dart';
 import '../diary/food_diary_screen.dart';
-import '../chat/ai_chat_screen.dart';
+import '../chat/chat_list_screen.dart';
 import '../practices/practices_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../forum/forum_screen.dart';
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const ForumScreen(),       // Главная вкладка
     const DiaryMainScreen(),   // Дневник
-    const AIChatScreen(),      // Чат
+    const ChatListScreen(),    // Чаты (ИИ + волонтёры)
     const PracticesListScreen(), // Практики
     const ProfileScreen(),     // Профиль
   ];

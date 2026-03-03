@@ -281,6 +281,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
+                    TextButton(
+                      onPressed: () => Navigator.pushNamed(context, '/volunteer_register'),
+                      child: const Text(
+                        'Регистрация как волонтёр',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ),
                     const Expanded(
                       child: SizedBox(),
                     ),

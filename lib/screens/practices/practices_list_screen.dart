@@ -62,6 +62,24 @@ class PracticesListScreen extends StatelessWidget {
             Icons.nightlight_round,
             Colors.purple,
           ),
+          _buildPracticeCard(
+            'Дневник мыслей',
+            '5–10 минут',
+            Icons.edit_note,
+            Colors.indigo,
+          ),
+          _buildPracticeCard(
+            'Управление гневом',
+            '10 минут',
+            Icons.psychology,
+            Colors.deepOrange,
+          ),
+          _buildPracticeCard(
+            'Тест на уровень тревоги',
+            '3 минуты',
+            Icons.quiz,
+            Colors.brown,
+          ),
         ],
       ),
     );
