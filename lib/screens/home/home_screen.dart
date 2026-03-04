@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
@@ -80,7 +80,6 @@ class DiaryMainScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Дневник'),
-          backgroundColor: Colors.blue,
           actions: [
             IconButton(
               icon: const Icon(Icons.analytics_outlined),

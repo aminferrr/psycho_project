@@ -4,6 +4,11 @@ import '../chat/psychologist_requests_screen.dart';
 import '../chat/psychologist_chat_list_screen.dart';
 import '../../repositories/chat_repository.dart';
 import '../../services/auth_service.dart';
+import '../diary/emotion_diary_screen.dart';
+import '../diary/food_diary_screen.dart';
+import '../forum/forum_screen.dart';
+import '../practices/practices_list_screen.dart';
+import '../profile/profile_screen.dart';
 
 class PsychologistHomeScreen extends StatefulWidget {
   const PsychologistHomeScreen({Key? key}) : super(key: key);
@@ -15,33 +20,77 @@ class PsychologistHomeScreen extends StatefulWidget {
 class _PsychologistHomeScreenState extends State<PsychologistHomeScreen> {
   int _selectedIndex = 0;
 
+  // Все экраны психолога (общие + специальные чаты)
   final List<Widget> _screens = [
-    const PsychologistRequestsScreen(),
-    const PsychologistChatListScreen(),
-    const Center(child: Text('Статистика')),
-    const Center(child: Text('Профиль')),
+    const ForumScreen(),
+    const PsychologistRequestsScreen(),  // Запросы от подростков
+    const PsychologistChatListScreen(),  // Активные чаты
+    const EmotionDiaryScreen(),          // Дневник эмоций
+    const FoodDiaryScreen(),             // Дневник питания
+    const PracticesListScreen(),         // Практики
+    const ProfileScreen(),               // Профиль
   ];
 
   final List<String> _titles = [
+    'Форум',
     'Запросы',
-    'Чаты',
-    'Статистика',
+    'Чаты с подростками',
+    'Дневник эмоций',
+    'Дневник питания',
+    'Практики',
     'Профиль',
   ];
 
+  final List<IconData> _icons = [
+    Icons.forum,
+    Icons.notifications,
+    Icons.chat,
+    Icons.fitness_center,
+    Icons.emoji_emotions,
+    Icons.restaurant,
+    Icons.person,
+  ];
+
+  void _showLogoutDialog(BuildContext context) {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Выход'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await authService.signOut();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Выйти'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
-        backgroundColor: Colors.teal,
+        backgroundColor: Color(0xFF7E57C2),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => authService.signOut(),
+            onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
@@ -50,12 +99,14 @@ class _PsychologistHomeScreenState extends State<PsychologistHomeScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Запросы'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Чаты'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Статистика'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Профиль'),
-        ],
+        selectedItemColor: Color(0xFF3E2C4A),
+        unselectedItemColor: Colors.grey,
+        items: List.generate(_screens.length, (index) {
+          return BottomNavigationBarItem(
+            icon: Icon(_icons[index]),
+            label: _titles[index],
+          );
+        }),
       ),
     );
   }

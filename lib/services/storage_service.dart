@@ -48,4 +48,17 @@ class StorageService {
       rethrow;
     }
   }
+
+  Future<String> uploadVolunteerFile(String volunteerId, String filePath, String type) async {
+    try {
+      final path = 'volunteers/$volunteerId/$type/${DateTime.now().millisecondsSinceEpoch}';
+      Reference ref = _storage.ref().child(path);
+      UploadTask uploadTask = ref.putFile(File(filePath));
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print('Error uploading volunteer file: $e');
+      rethrow;
+    }
+  }
 }

@@ -134,7 +134,6 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
     return Scaffold(
       appBar: AppBar(
         title: const Text('Чат с психологом'),
-        backgroundColor: Colors.lightBlue[100],
         elevation: 0,
       ),
       body: Stack(
@@ -242,9 +241,9 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
   Widget _buildInputField() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 4,
@@ -274,7 +273,7 @@ class _AIChatScreenState extends State<AIChatScreen> with TickerProviderStateMix
           FloatingActionButton(
             mini: true,
             onPressed: _send,
-            backgroundColor: Colors.lightBlue,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: const Icon(Icons.send, color: Colors.white),
           ),
         ],

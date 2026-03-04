@@ -60,7 +60,7 @@ class _VolunteerChatScreenState extends State<VolunteerChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.peerName.isNotEmpty ? widget.peerName : 'Чат'),
-        backgroundColor: Colors.teal,
+        backgroundColor:Color(0xFF3E2C4A),
         foregroundColor: Colors.white,
       ),
       body: Stack(
@@ -72,21 +72,21 @@ class _VolunteerChatScreenState extends State<VolunteerChatScreen> {
             child: Container(color: Colors.white.withOpacity(0.92)),
           ),
           StreamBuilder<VolunteerChatSession?>(
-        stream: chatRepo.getVolunteerChatSession(widget.chatId),
-        builder: (context, snapshot) {
-          final session = snapshot.data;
-          final canReply = widget.isPsychologist || (session?.status == 'accepted' ?? false);
+            stream: chatRepo.getVolunteerChatSession(widget.chatId),
+            builder: (context, snapshot) {
+              final session = snapshot.data;
+              final canReply = widget.isPsychologist || (session?.status == 'accepted' ?? false);
 
-          return Column(
-            children: [
-              Expanded(
-                child: _buildMessages(snapshot),
-              ),
-              if (canReply) _buildInput(),
-            ],
-          );
-        },
-      ),
+              return Column(
+                children: [
+                  Expanded(
+                    child: _buildMessages(snapshot),
+                  ),
+                  if (canReply) _buildInput(),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
@@ -107,8 +107,8 @@ class _VolunteerChatScreenState extends State<VolunteerChatScreen> {
           widget.isPsychologist
               ? 'Напишите ответ пользователю'
               : session.status == 'pending'
-                  ? 'Ожидайте принятия запроса психологом'
-                  : 'Напишите сообщение волонтёру',
+              ? 'Ожидайте принятия запроса психологом'
+              : 'Напишите сообщение волонтёру',
           style: const TextStyle(color: Colors.grey),
         ),
       );
@@ -126,11 +126,17 @@ class _VolunteerChatScreenState extends State<VolunteerChatScreen> {
             margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isUser ? Colors.teal[300] : Colors.grey[200],
+              color: isUser ? Color(0xFF3E2C4A) : Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-            child: Text(msg.content, style: const TextStyle(fontSize: 15)),
+            child: Text(
+              msg.content,
+              style: TextStyle(
+                fontSize: 15,
+                color: isUser ? Colors.white : Colors.black87,
+              ),
+            ),
           ),
         );
       },

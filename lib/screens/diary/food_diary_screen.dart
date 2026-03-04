@@ -31,7 +31,7 @@ class FoodDiaryScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF3E2C4A),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -64,7 +64,7 @@ class FoodDiaryScreen extends StatelessWidget {
                       margin: const EdgeInsets.all(8),
                       child: ListTile(
                         leading:
-                        const Icon(Icons.restaurant, color: Colors.green),
+                        const Icon(Icons.restaurant, color: Color(0xFF4F309E)),
                         title: Text(e.foodItems.map((f) => f.name).join(', ')),
                         subtitle: Text(
                           '${_formatTime(e.timestamp)} • ${e.context}',

@@ -75,8 +75,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -103,7 +101,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             height: 150,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.deepPurple, Colors.purple],
+                colors: [Color(0xFFD1C4E9), Color(0xFFB39DDB)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -115,7 +113,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 CircleAvatar(
                   radius: 25,
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.admin_panel_settings, color: Colors.deepPurple),
+                  child: Icon(Icons.admin_panel_settings, color: Color(0xFF7E57C2)),
                 ),
                 SizedBox(height: 8),
                 Text(

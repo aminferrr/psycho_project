@@ -17,6 +17,11 @@ class UserRepository {
     });
   }
 
+  // ✅ ДОБАВЛЯЕМ ЭТОТ МЕТОД
+  Future<UserModel?> getUser(String uid) async {
+    return await _firestoreService.getUser(uid);
+  }
+
   Future<void> createUser(UserModel user) async {
     await _firestoreService.createUser(user);
   }

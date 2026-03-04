@@ -4,15 +4,13 @@ import '../models/volunteer_profile_model.dart';
 import '../models/user_model.dart';
 import '../models/admin_log_model.dart';
 import '../services/firestore_service.dart';
-import '../services/storage_service.dart';
 import '../services/auth_service.dart';
 
 class VolunteerRepository {
   final FirestoreService _firestoreService;
-  final StorageService _storageService;
   final AuthService _authService;
 
-  VolunteerRepository(this._firestoreService, this._storageService, this._authService);
+  VolunteerRepository(this._firestoreService, this._authService);
 
   Stream<List<VolunteerProfile>> getPendingApplications() {
     return _firestoreService.getPendingVolunteerApplications();
@@ -27,73 +25,110 @@ class VolunteerRepository {
     data['userId'] = uid;
     data['status'] = VolunteerStatus.pending.index;
     data['appliedAt'] = profile.appliedAt.millisecondsSinceEpoch;
-    await _firestoreService.createVolunteerApplication(data);
+
+    // Сохраняем заявку с ID пользователя
+    await _firestoreService.createVolunteerApplicationWithId(uid, data);
   }
 
+  /// Одобрить заявку
   Future<void> approveApplication(String volunteerDocId) async {
-    final profile = await _firestoreService.getVolunteerProfile(volunteerDocId);
-    if (profile == null) return;
+    try {
+      print('✅ Начинаем одобрение заявки: $volunteerDocId');
 
-    await _firestoreService.updateVolunteerStatus(
-      volunteerDocId,
-      VolunteerStatus.approved,
-      reviewerId: _authService.currentUser?.uid,
-    );
+      // Получаем профиль волонтера
+      final profile = await _firestoreService.getVolunteerProfile(volunteerDocId);
+      if (profile == null) {
+        print('❌ Профиль не найден');
+        return;
+      }
 
-    final user = await _firestoreService.getUser(profile.userId);
-    if (user != null) {
-      final updated = UserModel(
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName ?? profile.fullName,
-        photoURL: user.photoURL,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin,
-        subscription: user.subscription,
-        settings: user.settings,
-        role: UserRole.psychologist,
-        isApproved: true,
-        volunteerApplicationDate: user.volunteerApplicationDate,
-        volunteerId: volunteerDocId,
-        adminPermissions: user.adminPermissions,
+      // Обновляем статус заявки
+      await _firestoreService.updateVolunteerStatus(
+        volunteerDocId,
+        VolunteerStatus.approved,
+        reviewerId: _authService.currentUser?.uid,
       );
-      await _firestoreService.updateUser(updated);
-    }
 
-    final adminUid = _authService.currentUser?.uid ?? '';
-    final adminEmail = _authService.currentUser?.email ?? '';
-    await _firestoreService.logAdminAction(AdminLog(
-      id: const Uuid().v4(),
-      adminId: adminUid,
-      adminEmail: adminEmail,
-      actionType: AdminActionType.approveVolunteer,
-      description: 'Одобрена заявка волонтёра: ${profile.fullName}',
-      targetUserId: profile.userId,
-      targetId: volunteerDocId,
-      timestamp: DateTime.now(),
-    ));
+      print('✅ Статус заявки обновлен');
+
+      // Обновляем роль пользователя
+      final user = await _firestoreService.getUser(profile.userId);
+      if (user != null) {
+        final updated = UserModel(
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName ?? profile.fullName,
+          photoURL: user.photoURL,
+          createdAt: user.createdAt,
+          lastLogin: user.lastLogin,
+          subscription: user.subscription,
+          settings: user.settings,
+          role: UserRole.psychologist,
+          isApproved: true,
+          volunteerApplicationDate: user.volunteerApplicationDate,
+          volunteerId: volunteerDocId,
+          adminPermissions: user.adminPermissions,
+        );
+        await _firestoreService.updateUser(updated);
+        print('✅ Роль пользователя обновлена');
+      }
+
+      // Логируем действие админа
+      final adminUid = _authService.currentUser?.uid ?? '';
+      final adminEmail = _authService.currentUser?.email ?? '';
+      await _firestoreService.logAdminAction(AdminLog(
+        id: const Uuid().v4(),
+        adminId: adminUid,
+        adminEmail: adminEmail,
+        actionType: AdminActionType.approveVolunteer,
+        description: 'Одобрена заявка волонтёра: ${profile.fullName}, тел: ${profile.phoneNumber ?? "не указан"}',
+        targetUserId: profile.userId,
+        targetId: volunteerDocId,
+        timestamp: DateTime.now(),
+      ));
+
+      print('✅ Заявка успешно одобрена');
+
+    } catch (e) {
+      print('❌ Ошибка при одобрении заявки: $e');
+      rethrow;
+    }
   }
 
+  /// Отклонить заявку
   Future<void> rejectApplication(String volunteerDocId) async {
-    final profile = await _firestoreService.getVolunteerProfile(volunteerDocId);
-    await _firestoreService.updateVolunteerStatus(
-      volunteerDocId,
-      VolunteerStatus.rejected,
-      reviewComment: 'Отклонено администратором',
-      reviewerId: _authService.currentUser?.uid,
-    );
+    try {
+      print('✅ Начинаем отклонение заявки: $volunteerDocId');
 
-    final adminUid = _authService.currentUser?.uid ?? '';
-    final adminEmail = _authService.currentUser?.email ?? '';
-    await _firestoreService.logAdminAction(AdminLog(
-      id: const Uuid().v4(),
-      adminId: adminUid,
-      adminEmail: adminEmail,
-      actionType: AdminActionType.rejectVolunteer,
-      description: 'Отклонена заявка волонтёра${profile != null ? ': ${profile.fullName}' : ''}',
-      targetId: volunteerDocId,
-      timestamp: DateTime.now(),
-    ));
+      final profile = await _firestoreService.getVolunteerProfile(volunteerDocId);
+
+      // Обновляем статус заявки
+      await _firestoreService.updateVolunteerStatus(
+        volunteerDocId,
+        VolunteerStatus.rejected,
+        reviewComment: 'Отклонено после собеседования',
+        reviewerId: _authService.currentUser?.uid,
+      );
+
+      // Логируем действие админа
+      final adminUid = _authService.currentUser?.uid ?? '';
+      final adminEmail = _authService.currentUser?.email ?? '';
+      await _firestoreService.logAdminAction(AdminLog(
+        id: const Uuid().v4(),
+        adminId: adminUid,
+        adminEmail: adminEmail,
+        actionType: AdminActionType.rejectVolunteer,
+        description: 'Отклонена заявка волонтёра${profile != null ? ': ${profile.fullName}, тел: ${profile.phoneNumber ?? "не указан"}' : ''}',
+        targetId: volunteerDocId,
+        timestamp: DateTime.now(),
+      ));
+
+      print('✅ Заявка отклонена');
+
+    } catch (e) {
+      print('❌ Ошибка при отклонении заявки: $e');
+      rethrow;
+    }
   }
 
   Stream<List<VolunteerProfile>> getApprovedVolunteers() {

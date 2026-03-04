@@ -72,7 +72,8 @@ class StatisticsScreen extends StatelessWidget {
                     leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
                   ),
                   borderData: FlBorderData(show: true),
-                  lineBarsData: [LineChartBarData(spots: spots, isCurved: true, barWidth: 3, color: Colors.blue)],
+                  lineBarsData: [LineChartBarData(spots: spots, isCurved: true, barWidth: 3, color: Color(
+                      0xFF51266E))],
                 ),
               ),
             ),

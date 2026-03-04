@@ -135,12 +135,13 @@ final List<GroundingItem> groundingItems = [
   ),
 ];
 
+// Определяем, какие предметы подходят для каждого чувства
 class GroundingLevel {
   final int level;
   final String title;
   final String description;
   final int requiredCount;
-  final List<int> availableItems;
+  final List<int> availableItems; // индексы предметов, доступных на этом уровне
   final String sense;
 
   GroundingLevel({
@@ -153,45 +154,46 @@ class GroundingLevel {
   });
 }
 
+// Правильное распределение предметов по уровням
 final List<GroundingLevel> groundingLevels = [
   GroundingLevel(
     level: 1,
     title: "Уровень 1: 5 предметов",
-    description: "Найди 5 предметов, которые можно потрогать",
+    description: "Найди 5 предметов, которые можно ПОТРОГАТЬ",
     requiredCount: 5,
-    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы
+    availableItems: [0, 1, 3, 4, 5, 6, 7, 8], // Книгу, кофе, лампу, картины, подушку, растение, собаку можно потрогать
     sense: "потрогать",
   ),
   GroundingLevel(
     level: 2,
     title: "Уровень 2: 4 предмета",
-    description: "Найди 4 предмета, которые можно увидеть",
+    description: "Найди 4 предмета, которые можно УВИДЕТЬ",
     requiredCount: 4,
-    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы
+    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы можно увидеть
     sense: "увидеть",
   ),
   GroundingLevel(
     level: 3,
     title: "Уровень 3: 3 предмета",
-    description: "Найди 3 предмета, которые можно услышать",
+    description: "Найди 3 предмета, которые можно УСЛЫШАТЬ",
     requiredCount: 3,
-    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы доступны
+    availableItems: [0, 1, 2, 3, 5, 6, 7, 8], // Книга (шелест), кофе (бульканье), Исландия (шум водопада), лампа (гудит), картина (представить), подушка (звук), растение (шелест), собака (лает)
     sense: "услышать",
   ),
   GroundingLevel(
     level: 4,
     title: "Уровень 4: 2 предмета",
-    description: "Найди 2 предмета, которые можно понюхать",
+    description: "Найди 2 предмета, которые можно ПОНЮХАТЬ",
     requiredCount: 2,
-    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы доступны
+    availableItems: [0, 1, 2, 3, 4, 6, 7, 8], // Книга (запах бумаги), кофе (аромат), Исландия (горный воздух), лампа (нагретая пыль), картина (краска), подушка (белье), растение (зелень), собака (шерсть)
     sense: "понюхать",
   ),
   GroundingLevel(
     level: 5,
     title: "Уровень 5: 1 предмет",
-    description: "Найди 1 предмет, который можно съесть",
+    description: "Найди 1 предмет, который можно СЪЕСТЬ (или представить вкус)",
     requiredCount: 1,
-    availableItems: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], // Все предметы доступны
+    availableItems: [1, 2], // Только кофе и Исландия (воду) можно представить вкус
     sense: "съесть",
   ),
 ];

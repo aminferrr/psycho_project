@@ -41,10 +41,9 @@ class _BreathingPracticeScreenState extends State<BreathingPracticeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple.shade400,
+      backgroundColor: const Color(0xFFD1C4E9),
       appBar: AppBar(
         title: const Text("Дыхательная практика"),
-        backgroundColor: Colors.deepPurple.shade700,
       ),
       body: Center(
         child: Column(
@@ -71,7 +70,7 @@ class _BreathingPracticeScreenState extends State<BreathingPracticeScreen> {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  color: Colors.white,
                   ),
                 ),
               ),

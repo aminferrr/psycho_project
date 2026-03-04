@@ -11,6 +11,7 @@ import '../models/food_entry_model.dart';
 import '../models/forum_post_model.dart';
 import '../models/forum_comment_model.dart';
 import '../models/user_stats_model.dart';
+import '../models/practice_journal_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -43,8 +44,8 @@ class FirestoreService {
         .orderBy('date', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => EmotionEntry.fromJson({...d.data(), 'id': d.id}))
-            .toList());
+        .map((d) => EmotionEntry.fromJson({...d.data(), 'id': d.id}))
+        .toList());
   }
 
   Future<void> addEmotionEntry(EmotionEntry entry) async {
@@ -68,8 +69,8 @@ class FirestoreService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => FoodEntry.fromJson({...d.data(), 'id': d.id}))
-            .toList());
+        .map((d) => FoodEntry.fromJson({...d.data(), 'id': d.id}))
+        .toList());
   }
 
   Future<void> addFoodEntry(FoodEntry entry) async {
@@ -93,17 +94,17 @@ class FirestoreService {
         .limit(limit)
         .snapshots()
         .map((q) => q.docs.map((d) {
-          final data = d.data();
-          return ForumPost(
-            id: d.id,
-            userId: data['userId'] ?? '',
-            nickname: data['nickname'] ?? '',
-            avatarUrl: data['avatarUrl'] ?? '',
-            content: data['content'] ?? '',
-            commentCount: data['commentCount'] ?? 0,
-            timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] ?? 0),
-          );
-        }).toList());
+      final data = d.data();
+      return ForumPost(
+        id: d.id,
+        userId: data['userId'] ?? '',
+        nickname: data['nickname'] ?? '',
+        avatarUrl: data['avatarUrl'] ?? '',
+        content: data['content'] ?? '',
+        commentCount: data['commentCount'] ?? 0,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(data['timestamp'] ?? 0),
+      );
+    }).toList());
   }
 
   Future<String> addForumPost(ForumPost post) async {
@@ -120,12 +121,36 @@ class FirestoreService {
   }
 
   Future<void> addForumComment(ForumComment comment) async {
+    // Проверяем, что postId не пустой
+    if (comment.postId.isEmpty) {
+      print('❌ Ошибка: postId пустой');
+      throw Exception('postId не может быть пустым');
+    }
+
+    // Генерируем новый ID для комментария, если он пустой
+    final commentId = comment.id.isEmpty
+        ? _db.collection('forum_posts').doc(comment.postId).collection('comments').doc().id
+        : comment.id;
+
+    // Создаем новый комментарий с правильным ID
+    final newComment = ForumComment(
+      id: commentId,
+      postId: comment.postId,
+      userId: comment.userId,
+      nickname: comment.nickname,
+      avatarUrl: comment.avatarUrl,
+      content: comment.content,
+      timestamp: comment.timestamp,
+    );
+
     await _db
         .collection('forum_posts')
         .doc(comment.postId)
         .collection('comments')
-        .doc(comment.id)
-        .set(comment.toJson());
+        .doc(commentId)
+        .set(newComment.toJson());
+
+    print('✅ Комментарий добавлен с ID: $commentId для поста: ${comment.postId}');
   }
 
   Stream<List<ForumComment>> getForumComments(String postId) {
@@ -136,8 +161,8 @@ class FirestoreService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => ForumComment.fromJson({...d.data(), 'id': d.id, 'postId': postId}))
-            .toList());
+        .map((d) => ForumComment.fromJson({...d.data(), 'id': d.id, 'postId': postId}))
+        .toList());
   }
 
   // ================= USER STATS =================
@@ -148,11 +173,11 @@ class FirestoreService {
         .doc(userId)
         .snapshots()
         .map((d) {
-          if (d.exists && d.data() != null) {
-            return UserStats.fromJson({...d.data()!, 'userId': userId});
-          }
-          return null;
-        });
+      if (d.exists && d.data() != null) {
+        return UserStats.fromJson({...d.data()!, 'userId': userId});
+      }
+      return null;
+    });
   }
 
   Future<void> updateUserStats(String userId) async {
@@ -181,9 +206,9 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) =>
-                UserModel.fromJson({...d.data(), 'uid': d.id}))
-            .toList());
+        .map((d) =>
+        UserModel.fromJson({...d.data(), 'uid': d.id}))
+        .toList());
   }
 
   Future<Map<String, dynamic>> getAdminStats() async {
@@ -228,8 +253,8 @@ class FirestoreService {
         .limit(limit)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => AdminLog.fromJson({...d.data(), 'id': d.id}))
-            .toList());
+        .map((d) => AdminLog.fromJson({...d.data(), 'id': d.id}))
+        .toList());
   }
 
   Future<void> logAdminAction(AdminLog log) async {
@@ -244,8 +269,8 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => Practice.fromJson({...d.data(), 'id': d.id}))
-            .toList());
+        .map((d) => Practice.fromJson({...d.data(), 'id': d.id}))
+        .toList());
   }
 
   Future<void> addPractice(Practice practice) async {
@@ -258,6 +283,35 @@ class FirestoreService {
 
   Future<void> deletePractice(String practiceId) async {
     await _db.collection('practices').doc(practiceId).delete();
+  }
+
+  // ================= PRACTICE JOURNAL =================
+
+  Future<void> savePracticeJournalEntry(PracticeJournalEntry entry) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    await _db
+        .collection('users')
+        .doc(userId)
+        .collection('practice_journal')
+        .doc(entry.id)
+        .set(entry.toJson());
+  }
+
+  Stream<List<PracticeJournalEntry>> getPracticeJournalEntries() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return Stream.value([]);
+
+    return _db
+        .collection('users')
+        .doc(userId)
+        .collection('practice_journal')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((q) => q.docs
+        .map((d) => PracticeJournalEntry.fromJson(d.data()))
+        .toList());
   }
 
   // ================= FORUM =================
@@ -285,8 +339,8 @@ class FirestoreService {
         .orderBy('updatedAt', descending: true)
         .snapshots()
         .map((q) => q.docs
-            .map((d) => ChatSession.fromJson({...d.data(), 'id': d.id}))
-            .toList());
+        .map((d) => ChatSession.fromJson({...d.data(), 'id': d.id}))
+        .toList());
   }
 
   Future<String> createChatSession(String userId, String initialMessage) async {
@@ -336,40 +390,110 @@ class FirestoreService {
 
   // ================= VOLUNTEERS =================
 
+  /// Получить заявки в статусе pending
   Stream<List<VolunteerProfile>> getPendingVolunteerApplications() {
     return _db
         .collection('volunteers')
         .where('status', isEqualTo: VolunteerStatus.pending.index)
+        .orderBy('appliedAt', descending: true)
         .snapshots()
         .map((q) {
-          final list = q.docs
-              .map((d) => VolunteerProfile.fromJson({...d.data(), 'id': d.id}))
-              .toList();
-          list.sort((a, b) => b.appliedAt.compareTo(a.appliedAt));
-          return list;
-        });
-  }
-
-  Future<VolunteerProfile?> getVolunteerProfile(String volunteerId) async {
-    final doc = await _db.collection('volunteers').doc(volunteerId).get();
-    if (doc.exists && doc.data() != null) {
-      return VolunteerProfile.fromJson({...doc.data()!, 'id': doc.id});
-    }
-    return null;
-  }
-
-  Future<void> updateVolunteerStatus(
-    String volunteerId,
-    VolunteerStatus status, {
-    String? reviewComment,
-    String? reviewerId,
-  }) async {
-    await _db.collection('volunteers').doc(volunteerId).update({
-      'status': status.index,
-      'reviewComment': reviewComment,
-      'reviewedAt': DateTime.now().millisecondsSinceEpoch,
-      'reviewerId': reviewerId,
+      return q.docs
+          .map((d) {
+        final data = d.data();
+        data['id'] = d.id;
+        return VolunteerProfile.fromJson(data);
+      })
+          .toList();
     });
+  }
+
+  /// Создать заявку волонтёра с конкретным ID
+  Future<void> createVolunteerApplicationWithId(String docId, Map<String, dynamic> data) async {
+    try {
+      await _db.collection('volunteers').doc(docId).set(data);
+      print('✅ Заявка создана с ID: $docId');
+    } catch (e) {
+      print('❌ Ошибка создания заявки: $e');
+      rethrow;
+    }
+  }
+
+  /// Получить профиль волонтера по ID заявки
+  Future<VolunteerProfile?> getVolunteerProfile(String volunteerId) async {
+    try {
+      final doc = await _db.collection('volunteers').doc(volunteerId).get();
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        data['id'] = doc.id;
+        return VolunteerProfile.fromJson(data);
+      }
+      return null;
+    } catch (e) {
+      print('❌ Ошибка получения профиля: $e');
+      return null;
+    }
+  }
+
+  /// Обновить статус заявки волонтера
+  Future<void> updateVolunteerStatus(
+      String volunteerId,
+      VolunteerStatus status, {
+        String? reviewComment,
+        String? reviewerId,
+      }) async {
+    try {
+      await _db.collection('volunteers').doc(volunteerId).update({
+        'status': status.index,
+        'reviewedAt': DateTime.now().millisecondsSinceEpoch,
+        if (reviewComment != null) 'reviewComment': reviewComment,
+        if (reviewerId != null) 'reviewerId': reviewerId,
+      });
+      print('✅ Статус заявки обновлен');
+    } catch (e) {
+      print('❌ Ошибка обновления статуса: $e');
+      rethrow;
+    }
+  }
+
+  /// Получить список одобренных волонтёров (ЕДИНСТВЕННОЕ ОПРЕДЕЛЕНИЕ)
+  Stream<List<VolunteerProfile>> getApprovedVolunteers() {
+    return _db
+        .collection('volunteers')
+        .where('status', isEqualTo: VolunteerStatus.approved.index)
+        .orderBy('appliedAt', descending: true)
+        .snapshots()
+        .map((q) {
+      return q.docs
+          .map((d) {
+        final data = d.data();
+        data['id'] = d.id;
+        return VolunteerProfile.fromJson(data);
+      })
+          .toList();
+    });
+  }
+
+  /// Получить заявку волонтера по userId
+  Future<VolunteerProfile?> getVolunteerApplicationByUserId(String userId) async {
+    try {
+      final query = await _db
+          .collection('volunteers')
+          .where('userId', isEqualTo: userId)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        final doc = query.docs.first;
+        final data = doc.data();
+        data['id'] = doc.id;
+        return VolunteerProfile.fromJson(data);
+      }
+      return null;
+    } catch (e) {
+      print('❌ Ошибка получения заявки по userId: $e');
+      return null;
+    }
   }
 
   // ================= VOLUNTEER CHAT (user <-> volunteer) =================
@@ -381,12 +505,12 @@ class FirestoreService {
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((q) {
-          final list = q.docs
-              .map((d) => VolunteerChatSession.fromJson({...d.data(), 'id': d.id}))
-              .toList();
-          list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return list;
-        });
+      final list = q.docs
+          .map((d) => VolunteerChatSession.fromJson({...d.data(), 'id': d.id}))
+          .toList();
+      list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      return list;
+    });
   }
 
   /// Список чатов волонтера (психолога) с пользователями
@@ -396,12 +520,12 @@ class FirestoreService {
         .where('volunteerUserId', isEqualTo: volunteerUserId)
         .snapshots()
         .map((q) {
-          final list = q.docs
-              .map((d) => VolunteerChatSession.fromJson({...d.data(), 'id': d.id}))
-              .toList();
-          list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-          return list;
-        });
+      final list = q.docs
+          .map((d) => VolunteerChatSession.fromJson({...d.data(), 'id': d.id}))
+          .toList();
+      list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      return list;
+    });
   }
 
   Future<String> createOrGetVolunteerChat(String userId, String volunteerUserId, String volunteerName, {String? userName}) async {
@@ -457,24 +581,6 @@ class FirestoreService {
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
     });
   }
-
-  /// Создать заявку волонтёра (документ в volunteers)
-  Future<String> createVolunteerApplication(Map<String, dynamic> data) async {
-    final ref = _db.collection('volunteers').doc();
-    await ref.set({...data, 'id': ref.id});
-    return ref.id;
-  }
-
-  /// Список одобренных волонтёров
-  Stream<List<VolunteerProfile>> getApprovedVolunteers() {
-    return _db
-        .collection('volunteers')
-        .where('status', isEqualTo: VolunteerStatus.approved.index)
-        .snapshots()
-        .map((q) => q.docs
-            .map((d) => VolunteerProfile.fromJson({...d.data(), 'id': d.id}))
-            .toList());
-  }
 }
 
 /// Модель чата пользователя с волонтером
@@ -502,16 +608,16 @@ class VolunteerChatSession {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'userId': userId,
-        'volunteerUserId': volunteerUserId,
-        'volunteerName': volunteerName,
-        'userName': userName,
-        'status': status,
-        'messages': messages.map((m) => m.toJson()).toList(),
-        'createdAt': createdAt.millisecondsSinceEpoch,
-        'updatedAt': updatedAt.millisecondsSinceEpoch,
-      };
+    'id': id,
+    'userId': userId,
+    'volunteerUserId': volunteerUserId,
+    'volunteerName': volunteerName,
+    'userName': userName,
+    'status': status,
+    'messages': messages.map((m) => m.toJson()).toList(),
+    'createdAt': createdAt.millisecondsSinceEpoch,
+    'updatedAt': updatedAt.millisecondsSinceEpoch,
+  };
 
   factory VolunteerChatSession.fromJson(Map<String, dynamic> json) {
     final messages = (json['messages'] as List?)

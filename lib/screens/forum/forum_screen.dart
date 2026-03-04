@@ -45,25 +45,22 @@ class _ForumScreenState extends State<ForumScreen> {
     final repo = context.read<ForumRepository>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5FAFF),
+      backgroundColor: const Color(0xFFF8F5FB),
       appBar: AppBar(
         title: const Text(
           'Форум поддержки',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         elevation: 0,
-        backgroundColor: Colors.lightBlue[100],
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          // 💬 Приветственный блок
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.lightBlue[100],
-              borderRadius: const BorderRadius.only(
+            decoration: const BoxDecoration(
+              color: Color(0xFFEDE7F6),
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
@@ -72,7 +69,7 @@ class _ForumScreenState extends State<ForumScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Привет 💙',
+                  'Привет 💜',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -128,7 +125,7 @@ class _ForumScreenState extends State<ForumScreen> {
                           ? const Text('Публикую...')
                           : const Text('Опубликовать'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlue[300],
+                        backgroundColor: Color(0xFFBA8AED),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -144,7 +141,7 @@ class _ForumScreenState extends State<ForumScreen> {
 
           const SizedBox(height: 10),
 
-          // 📜 Список постов
+
           Expanded(
             child: StreamBuilder<List<ForumPost>>(
               stream: repo.getForumPosts(),
@@ -254,10 +251,12 @@ class ForumPostCard extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.chat_bubble_outline, size: 16, color: Colors.blue),
+                    const Icon(Icons.chat_bubble_outline, size: 16, color: Color(
+                        0xFF6E3685)),
                     if (post.commentCount > 0) ...[
                       const SizedBox(width: 4),
-                      Text('${post.commentCount}', style: const TextStyle(fontSize: 13, color: Colors.blue)),
+                      Text('${post.commentCount}', style: const TextStyle(fontSize: 13, color: Color(
+                          0xFF6E3685))),
                     ],
                   ],
                 ),

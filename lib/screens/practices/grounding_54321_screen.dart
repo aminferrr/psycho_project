@@ -57,10 +57,10 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
     // Проверяем, доступен ли предмет на текущем уровне
     if (!currentLevel.availableItems.contains(itemIndex)) {
       setState(() {
-        activeText = "Этот предмет не подходит для этого уровня";
+        activeText = "Этот предмет не подходит для чувства '${currentLevel.sense}'";
       });
       Future.delayed(const Duration(seconds: 2), () {
-        if (mounted && activeText == "Этот предмет не подходит для этого уровня") {
+        if (mounted && activeText.startsWith("Этот предмет не подходит")) {
           setState(() => activeText = "");
         }
       });
@@ -90,15 +90,13 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
       foundItemIds.add(item.id);
     });
 
-    // Воспроизводим звук
-    await player.play(AssetSource(item.sound));
+    // 🔇 Звук полностью убран - ничего не воспроизводим
 
     // Проверяем, выполнен ли уровень
     if (foundItemIds.length >= currentLevel.requiredCount) {
       await completeLevel();
     }
   }
-
   Future<void> completeLevel() async {
     _isTransitioning = true;
 
@@ -199,7 +197,6 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Техника 5-4-3-2-1"),
-        backgroundColor: Colors.orange,
         actions: [
           IconButton(
             icon: Icon(debugMode ? Icons.visibility : Icons.visibility_off),
@@ -246,7 +243,7 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                     valueColor: AlwaysStoppedAnimation<Color>(
                       isCompleted || foundItemIds.length >= currentLevel.requiredCount
                           ? Colors.purple
-                          : Colors.green,
+                          : Colors.purple,
                     ),
                   ),
                   Text(
@@ -274,7 +271,7 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                   decoration: BoxDecoration(
                     color: debugMode ? getDebugColor(i) : Colors.transparent,
                     border: debugMode && isItemActive(i)
-                        ? Border.all(color: Colors.yellow, width: 2)
+                        ? Border.all(color: Color(0xFF3E2C4A), width: 2)
                         : null,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -310,6 +307,7 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
             ),
 
           // Задание уровня сверху
+          // Задание уровня сверху (исправленная версия)
           if (!isCompleted &&
               activeText.isEmpty &&
               !_isTransitioning &&
@@ -323,7 +321,7 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange, width: 2),
+                  border: Border.all(color: Color(0xFF3E2C4A), width: 2),
                 ),
                 child: Column(
                   children: [
@@ -345,6 +343,17 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                         fontSize: 16,
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    // Добавлена строка с чувством
+                    Text(
+                      'Используй чувство: ${currentLevel.sense}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF3E2C4A),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -364,7 +373,7 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.orange, width: 2),
+                    border: Border.all(color: Color(0xFF3E2C4A), width: 2),
                   ),
                   child: Text(
                     activeText,
@@ -376,18 +385,6 @@ class _Grounding54321ScreenState extends State<Grounding54321Screen> {
                     ),
                   ),
                 ),
-              ),
-            ),
-
-          // Кнопка перехода на следующий уровень (только для дебага)
-          if (debugMode && !isCompleted && foundItemIds.length >= currentLevel.requiredCount)
-            Positioned(
-              bottom: 100,
-              right: 20,
-              child: FloatingActionButton(
-                onPressed: () => completeLevel(),
-                backgroundColor: Colors.orange,
-                child: const Icon(Icons.skip_next),
               ),
             ),
         ],

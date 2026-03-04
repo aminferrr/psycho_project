@@ -84,8 +84,7 @@ class App extends StatelessWidget {
         Provider<VolunteerRepository>(
           create: (context) => VolunteerRepository(
             Provider.of<FirestoreService>(context, listen: false),
-            Provider.of<StorageService>(context, listen: false),
-            Provider.of<AuthService>(context, listen: false),
+            Provider.of<AuthService>(context, listen: false),  // Только 2 параметра
           ),
         ),
         Provider<AdminRepository>(

@@ -111,14 +111,14 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         constraints: const BoxConstraints.expand(),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.blue.shade800,
-              Colors.blue.shade600,
-              Colors.blue.shade400,
+              Color(0xFFB39EB5),
+              Color(0xFFD1C4E9),
+              Color(0xFFF3E5F5),
             ],
           ),
         ),
@@ -175,10 +175,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Text(
                               isLogin ? 'Вход' : 'Регистрация',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -189,10 +189,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   TextField(
                                     key: const Key('register_name'),
                                     controller: nameController,
-                                    decoration: const InputDecoration(
+                                    decoration: InputDecoration(
                                       labelText: 'Ваше имя',
-                                      prefixIcon: Icon(Icons.person, color: Colors.blue),
-                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+                                      border: const OutlineInputBorder(),
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -202,10 +202,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextField(
                               key: const Key('login_email'),
                               controller: emailController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Email',
-                                prefixIcon: Icon(Icons.email, color: Colors.blue),
-                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.email, color: Theme.of(context).colorScheme.primary),
+                                border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.emailAddress,
                             ),
@@ -215,10 +215,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               key: const Key('login_password'),
                               controller: passwordController,
                               obscureText: true,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Пароль',
-                                prefixIcon: Icon(Icons.lock, color: Colors.blue),
-                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.lock, color: Theme.of(context).colorScheme.primary),
+                                border: const OutlineInputBorder(),
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 key: const Key('login_button'),
                                 onPressed: isLoading ? null : authenticate,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25),
                                   ),

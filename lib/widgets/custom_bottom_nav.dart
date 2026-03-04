@@ -15,7 +15,10 @@ class CustomBottomNavigation extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: [
+      selectedItemColor: Theme.of(context).colorScheme.primary,
+      unselectedItemColor: Colors.grey,
+      type: BottomNavigationBarType.fixed,
+      items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.book),
           label: 'Дневник',

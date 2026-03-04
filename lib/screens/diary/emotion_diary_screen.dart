@@ -178,7 +178,7 @@ class EmotionDiaryScreen extends StatelessWidget {
             // Кнопка "Записать эмоцию"
             Card(
               child: ListTile(
-                leading: const Icon(Icons.add_reaction, color: Colors.blue),
+                leading: Icon(Icons.add_reaction, color: Theme.of(context).colorScheme.primary),
                 title: const Text('Записать эмоцию'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () => _showEmotionDialog(context, userId, repo),

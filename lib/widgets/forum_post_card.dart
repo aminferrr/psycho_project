@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/forum_post_model.dart';
+import '../utils/anon_generator.dart'; // Добавьте импорт
 
 class ForumPostCard extends StatelessWidget {
   final ForumPost post;
@@ -26,8 +27,9 @@ class ForumPostCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 16,
+                    // ✅ ИСПРАВЛЕНО: используем AnonGenerator
                     backgroundImage: post.avatarUrl.isNotEmpty
-                        ? NetworkImage(post.avatarUrl)
+                        ? AnonGenerator.getAvatarImage(post.avatarUrl)
                         : null,
                     child: post.avatarUrl.isEmpty
                         ? Text(post.nickname[0].toUpperCase())

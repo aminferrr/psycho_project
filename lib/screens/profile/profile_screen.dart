@@ -14,7 +14,6 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Профиль'),
-        backgroundColor: Colors.lightBlue[100],
       ),
       body: SingleChildScrollView(  // ← Оборачиваем в SingleChildScrollView
         padding: const EdgeInsets.all(16.0),
@@ -28,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     const CircleAvatar(
                       radius: 40,
-                      backgroundColor: Colors.lightBlue,
+                      backgroundColor:Color(0xFFBA8AED),
                       child: Icon(Icons.person, size: 40, color: Colors.white),
                     ),
                     const SizedBox(height: 16),
@@ -62,16 +61,47 @@ class ProfileScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const VolunteerRegistrationScreen()),
                     );
                   }),
-                  _buildSettingsItem(Icons.notifications, 'Уведомления', () {}),
-                  _buildSettingsItem(Icons.privacy_tip, 'Конфиденциальность', () {}),
+                  _buildSettingsItem(Icons.notifications, 'Уведомления', () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const AlertDialog(
+                        title: Text('Уведомления'),
+                        content: Text('Настройка уведомлений появится в следующих версиях.'),
+                      ),
+                    );
+                  }),
+                  _buildSettingsItem(Icons.privacy_tip, 'Конфиденциальность', () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const AlertDialog(
+                        title: Text('Конфиденциальность'),
+                        content: Text('Ваши данные хранятся анонимно и не передаются третьим лицам.'),
+                      ),
+                    );
+                  }),
                   _buildSettingsItem(Icons.phone_in_talk, 'Телефон доверия', () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const HelplineScreen()),
                     );
                   }),
-                  _buildSettingsItem(Icons.help, 'Помощь', () {}),
-                  _buildSettingsItem(Icons.info, 'О приложении', () {}),
+                  _buildSettingsItem(Icons.help, 'Помощь', () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const AlertDialog(
+                        title: Text('Помощь'),
+                        content: Text('Если вам тяжело, вы можете написать на форум или обратиться к волонтёру‑психологу.'),
+                      ),
+                    );
+                  }),
+                  _buildSettingsItem(Icons.info, 'О приложении', () {
+                    showAboutDialog(
+                      context: context,
+                      applicationName: 'MindCare',
+                      applicationVersion: '1.0.0',
+                      applicationLegalese: 'Приложение для поддержки ментального здоровья и бережной работы с тревогой.',
+                    );
+                  }),
                 ],
               ),
             ),
@@ -101,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildSettingsItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: Colors.lightBlue),
+      leading: Icon(icon, color: Colors.deepPurple[300]),
       title: Text(title),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
