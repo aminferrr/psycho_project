@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class AIService extends ChangeNotifier {
   // Ваш новый ключ
-  final String apiKey = 'AIzaSyBbf6IyMpIiHaYyzEkra5cGfHNuhD9Jkgo';
+  final String apiKey = '';
 
   // Для отслеживания лимитов
   int _requestCount = 0;
